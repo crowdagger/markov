@@ -102,6 +102,11 @@
 
 (define (main)
   (define m (make <model> #:gram 3))
+  (define m2 (make <model> #:gram 2))
+  (learn-from-file m2 "karima.txt")
+  (learn-from-file m2 "razor.txt")
+  (learn-from-file m2 "betty.txt")
+  (learn-from-file m2 "cookie.txt")
   (learn-from-file m "prompts.txt")
   (disp m)
   (newline)
@@ -110,6 +115,11 @@
 
   (for-each (lambda (e)
               (display (generate m))
+              (newline))
+            (make-list 10))
+
+  (for-each (lambda (e)
+              (display (generate m2))
               (newline))
             (make-list 10))
 

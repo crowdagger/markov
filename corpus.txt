@@ -1,0 +1,25 @@
+The cat is beautiful.
+I am happy.
+This is ok.
+This is a cat.
+The weather is ok.
+The cats eat the mouse.
+The mouse eat the cheese.
+The cheese stinks.
+The dog likes the cat.
+The cat does not like the dog.
+I do not like cheese.
+One does not just enter Mordor.
+I like Scheme.
+Guile scheme works with anything.
+I should go buy some groceries.
+I am writing some shit in some shitty file.
+All that to test a shitty program.
+I guess, it's fun, though?
+This cat is a beautiful cat.
+The mouse is not as beautiful as the cat.
+The dog is nice.
+The Scheme programming language is cool.
+Javacript stinks.
+
+This is some shitty corpus. Not great stuff, really. Whatever, what can I say? 

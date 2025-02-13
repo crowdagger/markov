@@ -1,4 +1,9 @@
-(import (oop goops))
+(import (srfi srfi-1)
+        (srfi srfi-11)
+        (ice-9 textual-ports)
+        (oop goops))
+
+(define sentence-end (string->char-set ".?!"))
 
 (define-class <model> ()
   (gram #:init-value 2
@@ -15,8 +20,13 @@
                     h)
     (display "}\n")))
 
+(define-generic empty-ngram)
+(define-method (empty-ngram (m <model>))
+  (make-list (gram m) 'empty))
+  
+
 (define-generic add-ngram)
-(define-method (add-ngram (m <model>) (k <list>) (v <string>))
+(define-method (add-ngram (m <model>) (k <list>) v)
   (unless (= (gram m) (length k))
     (error "List is not of size appropriate to the model" k (gram m)))
   (let* ([h (slot-ref m 'hash)]
@@ -25,3 +35,77 @@
                         initial-v
                         '())])
     (hash-set! h k (cons v initial-v))))
+
+(define-generic list-possible)
+(define-method (list-possible (m <model>) (ngram <list>))
+  (unless (= (gram m) (length ngram))
+    (error "List is not of size appropriate to the model" ngram (gram m)))
+  (let* ([h (slot-ref m 'hash)]
+         [v (hash-ref h ngram)])
+    (if v
+        v
+        '())))
+
+(define (generate m)
+  "Generate a string using the model m"
+  (let lp ([str ""]
+           [prev (empty-ngram m)])
+    (let* ([possible (list-possible m prev)]
+           [n (random (length possible))]
+           [choice (list-ref possible n)])
+      (if (eq? choice 'empty)
+          str
+          (lp (string-append str " " choice)
+              (append (cdr prev) (list choice)))))))
+
+(define-generic learn)
+(define-method (learn (m <model>) (l <list>))
+  "Learn all the ngrams from the list of strings l"
+  (let ([n (gram m)])
+    (if (<= (length l)
+            n)
+        'm
+        (let-values ([(head tail) (split-at (take l (1+ n)) n)])
+          (add-ngram m head (car tail))
+          (learn m (cdr l))))))
+
+(define-method (learn (m <model>) (s <string>))
+  (let ([lst (listify m s)])
+    (if (<= (length lst)
+            (* 3 (gram m)))
+        m ; do nothing since the string is too short
+        (learn m lst))))
+
+(define (learn-from-file m f)
+  (call-with-input-file f
+    (lambda (p)
+      (let* ([s (get-string-all p)]
+             [lst (string-split s sentence-end)])
+        (for-each (λ (e)
+                    (learn m e))
+                  lst)
+        '()))))
+             
+  
+
+(define (listify m str)
+  (let* ([l (string-split str char-set:whitespace)]
+         [empty (empty-ngram m)])
+    (append empty l empty)))
+
+(define (main)
+  (define m (make <model> #:gram 2))
+  (learn-from-file m "corpus2.txt")
+  (disp m)
+  (newline)
+
+  (set! *random-state* (random-state-from-platform))
+
+  (for-each (lambda (e)
+              (display (generate m))
+              (newline))
+            (make-list 10))
+
+)
+
+(main)

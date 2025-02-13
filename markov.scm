@@ -1,9 +1,11 @@
 (import (srfi srfi-1)
         (srfi srfi-11)
+        (srfi srfi-13)
         (ice-9 textual-ports)
         (oop goops))
 
 (define sentence-end (string->char-set ".?!"))
+(define valid-chars (char-set-union char-set:letter char-set:whitespace (string->char-set "'’-.")))
 
 (define-class <model> ()
   (gram #:init-value 2
@@ -80,7 +82,8 @@
   (call-with-input-file f
     (lambda (p)
       (let* ([s (get-string-all p)]
-             [lst (string-split s sentence-end)])
+;             [lst (string-split s sentence-end)])
+             [lst (string-split s #\newline)])
         (for-each (λ (e)
                     (learn m e))
                   lst)
@@ -89,13 +92,17 @@
   
 
 (define (listify m str)
-  (let* ([l (string-split str char-set:whitespace)]
+  (let* (;[str (string-filter valid-chars str)]
+         ;[str (string-downcase str)]
+         [l (string-split str char-set:whitespace)]
+         [l (map string-trim-both l)]
+         [l (filter (λ (s) (not (equal? "" s))) l)]
          [empty (empty-ngram m)])
     (append empty l empty)))
 
 (define (main)
-  (define m (make <model> #:gram 2))
-  (learn-from-file m "corpus2.txt")
+  (define m (make <model> #:gram 3))
+  (learn-from-file m "prompts.txt")
   (disp m)
   (newline)
 

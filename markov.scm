@@ -1,6 +1,5 @@
 (import (srfi srfi-1)
         (srfi srfi-11)
-        (srfi srfi-13)
         (ice-9 textual-ports)
         (oop goops))
 
@@ -101,22 +100,22 @@
     (append empty l empty)))
 
 (define (main)
-  (define m (make <model> #:gram 3))
+;  (define m (make <model> #:gram 3))
   (define m2 (make <model> #:gram 2))
   (learn-from-file m2 "karima.txt")
   (learn-from-file m2 "razor.txt")
   (learn-from-file m2 "betty.txt")
   (learn-from-file m2 "cookie.txt")
-  (learn-from-file m "prompts.txt")
-  (disp m)
-  (newline)
+;  (learn-from-file m "prompts.txt")
+ ; (disp m)
+;  (newline)
 
   (set! *random-state* (random-state-from-platform))
 
-  (for-each (lambda (e)
-              (display (generate m))
-              (newline))
-            (make-list 10))
+  ;; (for-each (lambda (e)
+  ;;             (display (generate m))
+  ;;             (newline))
+  ;;           (make-list 10))
 
   (for-each (lambda (e)
               (display (generate m2))
